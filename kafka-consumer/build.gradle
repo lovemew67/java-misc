@@ -1,0 +1,149 @@
+apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.google.cloud.tools.jib'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+mainClassName = 'com.lovemew67.consumer.Boot'
+
+run {
+    main 'com.lovemew67.consumer.Boot'
+}
+
+test {
+    useTestNG() {
+        excludeGroups 'manual'
+        useDefaultListeners = true
+    }
+}
+
+jar {
+    exclude '*.xml'
+    exclude '*.conf'
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath group: 'com.github.jengelman.gradle.plugins',  name: 'shadow',            version: '4.0.2'
+        classpath group: 'gradle.plugin.com.google.cloud.tools', name: 'jib-gradle-plugin', version: '1.0.0'
+    }
+}
+
+startScripts {
+    mainClassName = 'com.lovemew67.consumer.Boot'
+
+    doLast {
+        def scriptFile = file "${outputDir}/${applicationName}"
+        scriptFile.text = scriptFile.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/config/:$APP_HOME/lib')
+    }
+
+    applicationDistribution.from("src/main/resources") {
+        include '*.xml'
+        include '*.conf'
+        into "config"
+    }
+}
+
+ext {
+    guiceVersion = '4.2.2'
+    typeSafeVersion = '1.0.2'
+    kafkaClientVersion = '0.10.2.1'
+    zkVersion = '3.4.5'
+    janinoVersion = '3.0.12'
+    testngVersion = '6.8.17'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
+dependencies {
+    compile project(":kafka-consumer-event")
+    compile project(":kafka-consumer-api")
+
+    compile group: 'com.typesafe',          name: 'config',         version: typeSafeVersion
+    compile group: 'org.apache.kafka',      name: 'kafka-clients',  version: kafkaClientVersion
+    compile group: 'org.apache.zookeeper',  name: 'zookeeper',      version: zkVersion
+    compile group: 'org.codehaus.janino',   name: 'janino',         version: janinoVersion
+
+    testCompile group: 'org.testng', name: 'testng', version: testngVersion
+}
+
+allprojects {
+    apply plugin: 'java'
+
+    group 'kafka-consumer'
+    version '0.1'
+
+    task hello {
+        doLast { task ->
+            println "I'm $task.project.name"
+        }
+    }
+}
+
+subprojects {
+    hello {
+        doLast {
+            println "- I am in subprojects"
+        }
+    }
+}
+
+project(':kafka-consumer-api') {
+    hello {
+        doLast {
+            println "- I'm api"
+        }
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        compile project(':kafka-consumer-event')
+    }
+}
+
+project(':kafka-consumer-event') {
+    hello {
+        doLast {
+            println "- I'm event"
+        }
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+}

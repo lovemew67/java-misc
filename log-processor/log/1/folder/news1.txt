@@ -1,0 +1,6 @@
+GCP resources
+
+This distribution of resources provides several benefits, including redundancy in case of failure and reduced latency by locating resources closer to clients. 
+
+Accessing resources through services
+In cloud computing, what you might be used to thinking of as software and hardware products, become services.

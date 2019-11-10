@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.lovemew67.common";
+option java_outer_classname = "CommonProto";
+option objc_class_prefix = "lovemew67";
+
+package common;
+
+message ServiceError {
+    int32 errorCode = 1;
+    string errorMessage = 2;
+    string service = 3;
+}

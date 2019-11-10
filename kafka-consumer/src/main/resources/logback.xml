@@ -1,0 +1,56 @@
+<configuration scan="true" scanPeriod="30 seconds">
+    <if condition='property("ENV").equals("k8s")'>
+        <then>
+            <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+                <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                    <customFields>
+                        {"app":"${SERVICE_NAME}","instance":"${NODE}","env":"${PHASE}","region":"${REGION}","type":"log"}
+                    </customFields>
+                </encoder>
+            </appender>
+            <logger name="http-access" level="ERROR"/>
+        </then>
+        <else>
+            <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>kafka-consumer.log</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <fileNamePattern>kafka-consumer.%d{yyyy-MM-dd}.%i.log.gz
+                    </fileNamePattern>
+                    <maxHistory>90</maxHistory>
+                    <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                        <maxFileSize>100MB</maxFileSize>
+                    </timeBasedFileNamingAndTriggeringPolicy>
+                </rollingPolicy>
+                <append>true</append>
+                <encoder>
+                    <charset>UTF-8</charset>
+                    <pattern>%d [%thread] %level %logger - %m%n</pattern>
+                    <immediateFlush>false</immediateFlush>
+                </encoder>
+            </appender>
+            <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+                <layout class="ch.qos.logback.classic.PatternLayout">
+                    <Pattern>%d [%thread] %level %logger - %m%n</Pattern>
+                </layout>
+            </appender>
+            <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+                <destination>192.168.0.12:9997</destination>
+                <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                    <customFields>
+                        {"app":"${SERVICE_NAME}","instance":"${NODE}","env":"${PHASE}","region":"${REGION}","type":"log"}
+                    </customFields>
+                </encoder>
+            </appender>
+        </else>
+    </if>
+
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.apache.kafka.common.metrics" level="WARN"/>
+
+    <root level="DEBUG">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOGSTASH"/>
+    </root>
+
+</configuration>

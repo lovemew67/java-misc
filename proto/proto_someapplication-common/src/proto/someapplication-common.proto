@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.lovemew67.someapplication.common";
+option java_outer_classname = "SomeApplicationCommonProto";
+option objc_class_prefix = "lovemew67";
+
+import "common.proto";
+
+package someapplication.common;
+
+message Metadata {
+  string key = 1;
+  string value = 2;
+  bool hide = 3;
+}
+
+message CallChannelInformation {
+  string requestUri = 1;
+  string fromUri = 2;
+  string toUri = 3;
+  string sourceIp = 4;
+  map<string, string> requestHeaders = 5;
+  string body = 6;
+  enum MediaType {
+    UNKNOWN = 0;
+    OFFNET = 1;
+    ONNET = 2;
+  }
+  MediaType mediaType = 7;
+  string callAnswer = 8;
+  string parentNodeId = 9;
+}
+
+message IMChannelInformation {
+  string sourceIp = 1;
+  string fromJid = 2;
+  string toJid = 3;
+  string stanzaId = 4;
+}

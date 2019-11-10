@@ -1,0 +1,3 @@
+rootProject.name = 'kafka-consumer'
+include 'kafka-consumer-api'
+include 'kafka-consumer-event'

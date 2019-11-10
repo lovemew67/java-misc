@@ -1,0 +1,3 @@
+rootProject.name = 'proto'
+include 'proto_common'
+include 'proto_someapplication-common'

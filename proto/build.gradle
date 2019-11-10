@@ -1,0 +1,83 @@
+group 'com.lovemew67.proto'
+version '1.0'
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            enabled = false
+        }
+    }
+}
+
+buildscript {
+    repositories {
+        maven {
+            url "${artifactory_contextUrl}/m2/"
+        }
+    }
+ 
+    dependencies {
+        classpath group: 'com.google.protobuf', name: 'protobuf-gradle-plugin', version: '0.8.1'
+    }
+}
+
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'com.google.protobuf'
+
+    sourceCompatibility = 1.8
+
+    ext {
+        grpcVersion = "1.8.+"
+    }
+
+    dependencies {    	
+        compile group: 'io.grpc', name: 'grpc-netty', version: grpcVersion
+        compile group: 'io.grpc', name: 'grpc-protobuf', version: grpcVersion
+        compile group: 'io.grpc', name: 'grpc-stub', version: grpcVersion
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    compileJava {
+        options.encoding = 'UTF-8'
+    }
+
+    sourceSets {
+        main {
+            proto {
+                srcDir 'src/proto'
+            }
+            java {
+                srcDir 'build/generated/source/proto/main/grpc'
+				srcDir 'src/java'
+            }
+        }
+    }
+
+    protobuf {
+        protoc {
+            artifact = 'com.google.protobuf:protoc:3.3.0'
+        }
+        plugins {
+            grpc {
+                artifact = "io.grpc:protoc-gen-grpc-java:1.6.1"
+            }
+        }
+        generateProtoTasks {
+            all()*.plugins {
+                grpc {
+                    // To generate deprecated interfaces and static bindService method,
+                    // turn the enable_deprecated option to true below:
+                    option 'enable_deprecated=false'
+                }
+            }
+        }
+    }
+}

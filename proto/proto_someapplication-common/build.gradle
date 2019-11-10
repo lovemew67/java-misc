@@ -1,0 +1,6 @@
+group 'com.lovemew67.proto'
+version '1.0'
+
+dependencies {
+	compile project(':proto_common')
+}

@@ -1,0 +1,4 @@
+Global, regional, and zonal resources
+Some resources can be accessed by any other resource, across regions and zones. These global resources include preconfigured disk images, disk snapshots, and networks. 
+
+The following diagram shows the relationship between global scope, regions and zones, and some of their resources:
